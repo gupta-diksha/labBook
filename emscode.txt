@@ -1,0 +1,587 @@
+package com.cg.ems.dao;
+
+import java.awt.List;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import com.cg.ems.dto.Employee;
+import com.cg.ems.exception.EmployeeException;
+import com.cg.ems.util.CollectionUtil;
+
+public class EmpDaoImpl implements EmployeeDao {
+	
+	
+
+	@Override
+	public int addEmployee(Employee ee) throws EmployeeException {
+		CollectionUtil.addEmp(ee);
+		return ee.getEmpId();
+		
+	}
+
+	@Override
+	public HashSet<Employee> fetchAllEmp() {
+		// TODO Auto-generated method stub
+		return CollectionUtil.getAllEmp();
+		
+	}
+
+	@Override
+	public Employee getEmpById(String empId) {
+		// TODO Auto-generated method stub
+		HashSet<Employee> eset = CollectionUtil.getAllEmp();
+		Iterator<Employee> it = eset.iterator();
+		while(it.hasNext()){
+			Employee ee =it.next();
+			if((ee.getEmpId())==(Integer.parseInt(empId))){
+				return ee;
+			}
+		}
+		return null;
+		}				
+		
+		
+	
+
+	@Override
+	public HashSet<Employee> searchEmpByName(String name) {
+		// TODO Auto-generated method stub
+		HashSet<Employee> eset = CollectionUtil.getAllEmp();
+		HashSet<Employee> newset = new HashSet<Employee>();
+		Iterator<Employee> it = eset.iterator();
+		while(it.hasNext()){
+			Employee ee =it.next();
+			if(ee.getEmpName().equals(name)) {
+				
+				newset.add(ee);
+			}
+			}
+			return newset;
+		
+	}
+
+	@Override
+	public String deleteEmp(String empId) {
+		// TODO Auto-generated method stub
+		HashSet<Employee> eset = CollectionUtil.getAllEmp();
+		Iterator<Employee> it = eset.iterator();
+		boolean flag= false;
+		while(it.hasNext()){
+			
+			Employee e1 = it.next();
+			int i=Integer.parseInt(empId);
+			if(e1.getEmpId()==i){
+				
+				flag =true;
+				it.remove();
+				CollectionUtil.delEmp(e1);
+				
+			}
+		}
+		if(flag)
+			return empId;
+		else 
+			return null;
+			
+		
+		
+	}
+
+	@Override
+	public Employee updateEmp(int empId, String newName, float newSal) {
+		
+		HashSet<Employee> eset = CollectionUtil.getAllEmp();
+		Iterator<Employee> it = eset.iterator();
+		Employee e1 = null;
+		while(it.hasNext()){
+			 e1 = it.next();
+			if(e1.getEmpId()==empId){
+				
+					e1.setEmpName(newName);
+					e1.setEmpSal(newSal);		
+			}
+				
+		}		
+		return e1;
+	}
+}
+***********************************************************************************
+package com.cg.ems.dao;
+
+import java.util.HashSet;
+
+import com.cg.ems.dto.Employee;
+import com.cg.ems.exception.EmployeeException;
+
+public interface EmployeeDao {
+	
+	public int addEmployee(Employee ee)throws EmployeeException;
+	public HashSet<Employee> fetchAllEmp();
+	public Employee getEmpById(String empId);
+	public HashSet<Employee> searchEmpByName(String name);
+	public String deleteEmp(String empId);
+	public Employee updateEmp(int empId, String newName,float newSal);
+	
+
+}
+*****************************************************************************************
+package com.cg.ems.dto;
+
+import java.time.LocalDate;
+
+public class Employee implements Comparable<Employee> {
+	
+	private int empId;
+	private String empName;
+	private float empSal;
+	private LocalDate empDOJ;
+	
+	public int getEmpId() {
+		return empId;
+	}
+	public Employee() {
+		
+	}
+	public Employee(int empId, String empName, float empSal,LocalDate empDOJStr) {
+		super();
+		this.empId = empId;
+		this.empName = empName;
+		this.empSal = empSal;
+		this.empDOJ = empDOJStr;
+	}
+	public void setEmpId(int empId) {
+		this.empId = empId;
+	}
+	public String getEmpName() {
+		return empName;
+	}
+	public void setEmpName(String empName) {
+		this.empName = empName;
+	}
+	public float getEmpSal() {
+		return empSal;
+	}
+	public void setEmpSal(float empSal) {
+		this.empSal = empSal;
+	}
+	@Override
+	public String toString() {
+		return "Employee [empId=" + empId + ", empName=" + empName
+				+ ", empSal=" + empSal +", empDOJ="+empDOJ+ "]";
+	}
+	
+	@Override
+	public boolean equals(Object obj){
+		
+		Employee emp = (Employee)obj;
+		if(emp.empId == this.empId) {
+			return true;
+		}
+		else 
+			return false;
+	}
+	public boolean equals(String s){
+		
+		
+		if((this.empName).equals(s)) {
+			return true;
+		}
+		else 
+			return false;
+	}
+	@Override
+	public int hashCode() {
+		return empId;
+	}
+	@Override
+	public int compareTo(Employee emp)
+	{
+		if(emp.empId<this.empId)
+			return -1;
+		else if(emp.empId == this.empId)
+			return 0;
+		else
+			return 1;
+	}
+	public LocalDate getEmpDOJ() {
+		return empDOJ;
+	}
+	public void setEmpDOJ(LocalDate empDOJ) {
+		this.empDOJ = empDOJ;
+	}
+
+}
+********************************************************
+package com.cg.ems.exception;
+
+public class EmployeeException extends Exception {
+	
+	public EmployeeException(String msg){
+		super(msg);
+		
+	}
+
+}
+**********************************************************
+package com.cg.ems.junit;
+import java.time.LocalDate;
+
+import junit.framework.Assert;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.cg.ems.dao.EmpDaoImpl;
+import com.cg.ems.dao.EmployeeDao;
+import com.cg.ems.dto.Employee;
+import com.cg.ems.exception.EmployeeException;
+
+public class EmployeeDaoImplTest {
+
+	static EmployeeDao empdao = null;
+
+	@BeforeClass
+
+	public static void setUp()
+	{
+		empdao = new EmpDaoImpl();
+	}
+
+
+	@Test
+	public void addEmpTest()throws EmployeeException
+	{
+		Assert.assertEquals(111,empdao.addEmployee(new Employee(111,"aaa",1111.0F,LocalDate.now())));
+	}
+}
+**********************************************************************************
+package com.cg.ems.service;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.HashSet;
+
+import com.cg.ems.dto.Employee;
+import com.cg.ems.exception.EmployeeException;
+
+public interface EmployeeService {
+	
+	public int addEmployee(Employee ee)throws EmployeeException;
+	public HashSet<Employee> fetchAllEmp();
+	public Employee getEmpById(String empId);
+	public HashSet<Employee> searchEmpByName(String name);
+	public String deleteEmp(String empId);
+	public Employee updateEmp(int empId, String newName,float newSal);
+	//Validation of data is done in service layer so it is to be done here
+	public boolean validateDigit(String num) throws EmployeeException;
+	public boolean ValidateName(String name)throws EmployeeException;
+	public LocalDate convertFromStringtoLocalDate(String dtstr);
+	public Period experienceOfEmp(int id);
+}
+
+*********************************************************************************
+package com.cg.ems.service;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.regex.Pattern;
+
+import com.cg.ems.dao.EmpDaoImpl;
+import com.cg.ems.dao.EmployeeDao;
+import com.cg.ems.dto.Employee;
+import com.cg.ems.exception.EmployeeException;
+import com.cg.ems.util.CollectionUtil;
+
+public class EmployeeServiceImpl implements EmployeeService {
+	
+	EmployeeDao empDao = null;
+
+	public EmployeeServiceImpl() {
+		
+		empDao = new EmpDaoImpl();
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public int addEmployee(Employee ee) throws EmployeeException {
+		// TODO Auto-generated method stub
+		return empDao.addEmployee(ee);
+	}
+
+	@Override
+	public HashSet<Employee> fetchAllEmp() {
+		// TODO Auto-generated method stub
+		return empDao.fetchAllEmp();
+	}
+
+	@Override
+	public Employee getEmpById(String empId) {
+		// TODO Auto-generated method stub
+		return empDao.getEmpById(empId);
+	}
+
+	@Override
+	public HashSet<Employee> searchEmpByName(String name) {
+		// TODO Auto-generated method stub
+		
+		return empDao.searchEmpByName(name);
+		
+	}
+
+	@Override
+	public String deleteEmp(String empId) {
+		// TODO Auto-generated method stub
+		return empDao.deleteEmp(empId);
+	}
+
+	@Override
+	public Employee updateEmp(int empId, String newName, float newSal) {
+		// TODO Auto-generated method stub
+		return empDao.updateEmp(empId, newName, newSal);
+	}
+
+	@Override
+	public boolean validateDigit(String num) throws EmployeeException {
+		// TODO Auto-generated method stub
+		
+		String digitPattern= "[0-9]+";
+		if (Pattern.matches(digitPattern,num))
+		{
+			return true;
+		}
+		else {
+			throw new EmployeeException("Invalid input"+"Only digits are allowed for example 1234567890!!");
+		}
+		
+		
+	}
+
+	@Override
+	public boolean ValidateName(String name) throws EmployeeException {
+		// TODO Auto-generated method stub
+		String namePattern= "[A-Z][a-z]+";
+		if (Pattern.matches(namePattern,name))
+		{
+			return true;
+		}
+		else {
+			throw new EmployeeException("Invalid input"+"Only characters are allowed and should start with capital letter for eg Diksha!");
+		}
+		
+		//return false;
+	}
+
+	@Override
+	public LocalDate convertFromStringtoLocalDate(String dtstr) {
+		
+		DateTimeFormatter myFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		LocalDate date = LocalDate.parse(dtstr,myFormat);
+		return date;
+	}
+
+	
+	public Period experienceOfEmp(int id) {
+		LocalDate today = LocalDate.now();
+		Period p =null;
+		HashSet<Employee> eset = CollectionUtil.getAllEmp();
+		Iterator<Employee> it = eset.iterator();
+		while(it.hasNext())
+		{
+			Employee e = it.next();
+			if(id==e.getEmpId())
+				p= Period.between(e.getEmpDOJ(), today);
+		}
+		return p;
+	}
+	
+	
+
+}
+***************************************************************************
+package com.cg.ems.ui;
+
+import java.util.HashSet;
+import java.time.Period;
+import java.util.Iterator;
+import java.util.Scanner;
+
+import com.cg.ems.dto.Employee;
+import com.cg.ems.exception.EmployeeException;
+import com.cg.ems.service.EmployeeService;
+import com.cg.ems.service.EmployeeServiceImpl;
+
+public class TestEmployeeClient {
+	
+	static Scanner sc = null;
+	static EmployeeService empSer= null;
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		 sc = new Scanner(System.in);
+		 empSer= new EmployeeServiceImpl();
+		 int choice=0;
+		 
+		 while(true){
+			 
+			 System.out.println("What do you want to do?");
+			 System.out.println("1:Add Emp \t 2:Fetch All Emp \n");
+			 System.out.println("3:Delete Emp \t 4: Search Emp by id \n");
+			 System.out.println("5:Search by name\t 6: Update \n");
+			 System.out.println("7:Displaying experience of employee \t 8:Exit\n");
+			 System.out.println("Enter your choice:");
+			 choice= sc.nextInt();
+			 switch(choice)
+			 {
+			 case 1 : addEmp(); break;
+			 case 2 : showEmpinfo();break;
+			 case 3 : delete();break;
+			 case 4 : searchEmpById();break;
+			 case 5 : searchEmpByName();break; 
+			 case 6 : update();break;
+			 case 7 : empExperience();
+			 default: System.exit(0);
+			 
+			 }
+		}
+}
+
+	private static void empExperience() {
+		System.out.println("Enter the employee id:");
+		int empID= sc.nextInt();
+		Period p1 = empSer.experienceOfEmp(empID);
+		System.out.println("Experience of employee:"+p1.getYears()+" years "+p1.getMonths()+" months "+p1.getDays()+" days");
+		
+		
+	}
+
+	private static void update() {
+		
+		System.out.println("Enter the empid against which you want to update:");
+		String eid = sc.next();
+		System.out.println("Enter the new name:");
+		String nName= sc.next();
+		System.out.println("Enter the new salary:");
+		Float nSal=  sc.nextFloat();
+		Employee obj = empSer.updateEmp(Integer.parseInt(eid), nName, nSal);
+		if(obj!=null)
+			System.out.println(eid+"\tSuccessfully updated!");
+		else
+			System.out.println("Cannot find this employee id!Try again!");
+		
+		
+	}
+
+	private static void delete() {
+		
+		System.out.println("Enter the employee id to be deleted:");
+		String eid= sc.next();
+		String s = empSer.deleteEmp(eid);
+		if(s==eid)
+			System.out.println(eid+" has been removed successfully!");
+		else
+			System.out.println("Not found");
+		
+	}
+
+	private static void searchEmpById() {
+		
+		System.out.println("Enter the employee id to be searched:");
+		String eid= sc.next();
+		Employee e = empSer.getEmpById(eid);
+		if(e!=null)
+			System.out.println(eid+"  Found "+e);
+		else
+			System.out.println("Not found");
+		
+	}
+
+	private static void searchEmpByName() {
+		
+		System.out.println("Enter the name to be searched:");
+		String searchName= sc.next();
+		HashSet<Employee> eset = empSer.searchEmpByName(searchName);
+		System.out.println(eset);
+		
+	}
+
+	private static void showEmpinfo() {
+		
+		HashSet<Employee>  empSet = empSer.fetchAllEmp();
+		Iterator<Employee> it = empSet.iterator();
+		System.out.println("************************************");
+		System.out.println("EMPID\t\tEMPNAME\t\tEMPSALARY\t\tEMPDOJ");
+		while(it.hasNext()){
+			Employee ee=it.next();
+			System.out.println(ee.getEmpId()+"\t\t"+ee.getEmpName()+"\t\t"+ee.getEmpSal()+"\t\t"+ee.getEmpDOJ());
+		}
+		System.out.println("************************************");
+	}	
+		
+	
+
+	private static void addEmp() {
+		
+		System.out.println("Enter Emp id:");
+		String eid = sc.next();
+		try{
+			if(empSer.validateDigit(eid)){
+				System.out.println("Enter Emp name:");
+				String nm =  sc.next();
+				if(empSer.ValidateName(nm)) {
+					System.out.println("Enter Salary:");
+					float sal = sc.nextFloat();
+					System.out.println("Enter DOJ(dd-mm-yyyy)");
+					String empDOJStr= sc.next();
+					Employee ee = new Employee(Integer.parseInt(eid),nm,sal,empSer.convertFromStringtoLocalDate(empDOJStr));
+					System.out.println(eid);
+					int empId= empSer.addEmployee(ee);
+					System.out.println(empId+" Added successfully!");
+				}			
+			}
+		}
+		catch(EmployeeException e){
+			e.printStackTrace();
+		}
+	}
+
+}
+**************************************************************************************
+package com.cg.ems.util;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.HashSet;
+
+import com.cg.ems.dto.Employee;
+
+public class CollectionUtil {
+	
+	private static HashSet<Employee> empset = new HashSet<Employee>();
+	static{
+		 empset.add(new Employee(1221,"Vaishali S",5000.0f,LocalDate.of(2014, Month.MARCH, 04)));
+		 empset.add(new Employee(1222,"Diksha",8000.0f,LocalDate.of(2015, Month.APRIL, 14)));
+		 empset.add(new Employee(1232,"Nancy",5500.0f,LocalDate.of(2017, Month.SEPTEMBER, 30)));
+		 empset.add(new Employee(1258,"Armaan",15000.0f,LocalDate.of(2016, Month.JUNE, 11)));
+		 empset.add(new Employee(1289,"Neha",75000.0f,LocalDate.of(2014, Month.JULY, 12)));
+		 empset.add(new Employee(1275,"Manisha",52000.0f,LocalDate.of(2018, Month.MAY, 31)));
+	}
+	 public static void addEmp(Employee emp){
+		 
+		 empset.add(emp);
+	 }
+	 public static HashSet<Employee> getAllEmp(){
+		 
+		 return empset;
+	 }
+	 public static void delEmp(Employee e){
+		 empset.remove(e);
+	 }
+	 
+	
+	//public static void main(String args)
+
+}
+*****************************************************************
